@@ -1,14 +1,24 @@
+using LubricentroApi.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Agrega los controladores.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// Habilita OpenAPI.
 builder.Services.AddOpenApi();
+
+// Configura Entity Framework Core con SQL Server.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// OpenAPI solamente durante desarrollo.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
