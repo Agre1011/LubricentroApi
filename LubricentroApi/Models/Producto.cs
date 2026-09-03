@@ -38,5 +38,13 @@ namespace LubricentroApi.Models
         // Relación: cada producto pertenece a una categoría.
         [ForeignKey(nameof(IdCategoria))]
         public Categoria? Categoria { get; set; }
+
+        // Relación: un producto puede aparecer en muchos detalles de ingreso.
+        public ICollection<DetalleIngreso> DetallesIngresos { get; set; }
+            = new List<DetalleIngreso>();
+
+        // Relación: un producto puede aparecer en muchos detalles de salida.
+        public ICollection<DetalleSalida> DetallesSalidas { get; set; }
+            = new List<DetalleSalida>();
     }
 }
