@@ -13,5 +13,8 @@ namespace LubricentroApi.Models
 
         [MaxLength(250)]
         public string? Descripcion { get; set; }
+
+        // Relación: una categoría puede tener muchos productos.
+        public ICollection<Producto> Productos { get; set; } = new List<Producto>();
     }
 }
