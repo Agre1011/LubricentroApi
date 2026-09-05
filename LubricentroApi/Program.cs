@@ -85,6 +85,16 @@ builder.Services.AddScoped<JwtService>();
 var app = builder.Build();
 
 // ----------------------------------------------------
+// DATOS INICIALES DE USUARIO
+// ----------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await DbInitializer.InicializarAsync(context);
+}
+
+// ----------------------------------------------------
 // PIPELINE HTTP
 // ----------------------------------------------------
 if (app.Environment.IsDevelopment())
