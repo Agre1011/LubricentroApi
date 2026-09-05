@@ -4,6 +4,7 @@ using LubricentroApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LubricentroApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260904215432_DatosIniciales")]
+    partial class DatosIniciales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,200 +251,6 @@ namespace LubricentroApi.Migrations
                     b.HasIndex("IdCategoria");
 
                     b.ToTable("Productos");
-
-                    b.HasData(
-                        new
-                        {
-                            IdProducto = 1,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Total",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 30000m,
-                            PrecioVenta = 40000m,
-                            Stock = 0,
-                            Variante = "5W-30"
-                        },
-                        new
-                        {
-                            IdProducto = 2,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Motul",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 32000m,
-                            PrecioVenta = 42000m,
-                            Stock = 0,
-                            Variante = "5W-30"
-                        },
-                        new
-                        {
-                            IdProducto = 3,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Total",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 28000m,
-                            PrecioVenta = 38000m,
-                            Stock = 0,
-                            Variante = "10W-40"
-                        },
-                        new
-                        {
-                            IdProducto = 4,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Motul",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 30000m,
-                            PrecioVenta = 40000m,
-                            Stock = 0,
-                            Variante = "10W-40"
-                        },
-                        new
-                        {
-                            IdProducto = 5,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Total",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 26000m,
-                            PrecioVenta = 36000m,
-                            Stock = 0,
-                            Variante = "15W-40"
-                        },
-                        new
-                        {
-                            IdProducto = 6,
-                            Activo = true,
-                            IdCategoria = 1,
-                            Marca = "Motul",
-                            Nombre = "Aceite Motor Auto",
-                            PrecioCompra = 28000m,
-                            PrecioVenta = 38000m,
-                            Stock = 0,
-                            Variante = "15W-40"
-                        },
-                        new
-                        {
-                            IdProducto = 7,
-                            Activo = true,
-                            IdCategoria = 2,
-                            Marca = "Castrol",
-                            Nombre = "Aceite Motor Moto",
-                            PrecioCompra = 15000m,
-                            PrecioVenta = 22000m,
-                            Stock = 0,
-                            Variante = "20W-50"
-                        },
-                        new
-                        {
-                            IdProducto = 8,
-                            Activo = true,
-                            IdCategoria = 2,
-                            Marca = "Motul",
-                            Nombre = "Aceite Motor Moto",
-                            PrecioCompra = 16000m,
-                            PrecioVenta = 23000m,
-                            Stock = 0,
-                            Variante = "20W-50"
-                        },
-                        new
-                        {
-                            IdProducto = 9,
-                            Activo = true,
-                            IdCategoria = 2,
-                            Marca = "Castrol",
-                            Nombre = "Aceite Motor Moto",
-                            PrecioCompra = 17000m,
-                            PrecioVenta = 24000m,
-                            Stock = 0,
-                            Variante = "15W-50"
-                        },
-                        new
-                        {
-                            IdProducto = 10,
-                            Activo = true,
-                            IdCategoria = 2,
-                            Marca = "Motul",
-                            Nombre = "Aceite Motor Moto",
-                            PrecioCompra = 18000m,
-                            PrecioVenta = 25000m,
-                            Stock = 0,
-                            Variante = "15W-50"
-                        },
-                        new
-                        {
-                            IdProducto = 11,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Total",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 8000m,
-                            PrecioVenta = 12000m,
-                            Stock = 0,
-                            Variante = "Verde"
-                        },
-                        new
-                        {
-                            IdProducto = 12,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Wander",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 7500m,
-                            PrecioVenta = 11000m,
-                            Stock = 0,
-                            Variante = "Verde"
-                        },
-                        new
-                        {
-                            IdProducto = 13,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Total",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 8500m,
-                            PrecioVenta = 12500m,
-                            Stock = 0,
-                            Variante = "Amarillo"
-                        },
-                        new
-                        {
-                            IdProducto = 14,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Wander",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 8000m,
-                            PrecioVenta = 12000m,
-                            Stock = 0,
-                            Variante = "Amarillo"
-                        },
-                        new
-                        {
-                            IdProducto = 15,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Total",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 9000m,
-                            PrecioVenta = 13000m,
-                            Stock = 0,
-                            Variante = "Rojo"
-                        },
-                        new
-                        {
-                            IdProducto = 16,
-                            Activo = true,
-                            IdCategoria = 3,
-                            Marca = "Wander",
-                            Nombre = "Líquido Refrigerante",
-                            PrecioCompra = 8500m,
-                            PrecioVenta = 12500m,
-                            Stock = 0,
-                            Variante = "Rojo"
-                        });
                 });
 
             modelBuilder.Entity("LubricentroApi.Models.Proveedor", b =>
