@@ -160,5 +160,56 @@ namespace LubricentroApi.Controllers
                 respuesta
             );
         }
+
+        // ----------------------------------------------------
+        // EDITAR PRODUCTO
+        // PUT: api/productos/{id}
+        // Admin y Empleado
+        // ----------------------------------------------------
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditarProducto(
+            int id,
+            EditarProductoDto dto)
+        {
+            // Buscamos el producto.
+            var producto = await _context.Productos
+                .FirstOrDefaultAsync(p => p.IdProducto == id);
+
+            if (producto == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "Producto no encontrado."
+                });
+            }
+
+            // Verificamos que la categoría exista.
+            bool categoriaExiste = await _context.Categorias
+                .AnyAsync(c => c.IdCategoria == dto.IdCategoria);
+
+            if (!categoriaExiste)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "La categoría indicada no existe."
+                });
+            }
+
+            // Modificamos solamente los datos permitidos.
+            producto.Nombre = dto.Nombre;
+            producto.Marca = dto.Marca;
+            producto.Variante = dto.Variante;
+            producto.PrecioCompra = dto.PrecioCompra;
+            producto.PrecioVenta = dto.PrecioVenta;
+            producto.IdCategoria = dto.IdCategoria;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Producto actualizado correctamente.",
+                idProducto = producto.IdProducto
+            });
+        }
     }
 }
