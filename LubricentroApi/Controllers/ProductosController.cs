@@ -211,5 +211,46 @@ namespace LubricentroApi.Controllers
                 idProducto = producto.IdProducto
             });
         }
+
+        // ----------------------------------------------------
+        // DAR DE BAJA PRODUCTO
+        // DELETE: api/productos/{id}
+        // Solo Admin
+        // ----------------------------------------------------
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarProducto(int id)
+        {
+            var producto = await _context.Productos
+                .FirstOrDefaultAsync(p => p.IdProducto == id);
+
+            if (producto == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "Producto no encontrado."
+                });
+            }
+
+            if (!producto.Activo)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "El producto ya se encuentra dado de baja."
+                });
+            }
+
+            // Baja lógica: no eliminamos físicamente el registro.
+            producto.Activo = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Producto dado de baja correctamente.",
+                idProducto = producto.IdProducto
+            });
+        }
     }
+
 }
