@@ -87,6 +87,78 @@ namespace LubricentroApi.Controllers
             }
 
             return Ok(producto);
+     
+        }
+
+        // ----------------------------------------------------
+        // CREAR PRODUCTO
+        // POST: api/productos
+        // Admin y Empleado
+        // ----------------------------------------------------
+        [HttpPost]
+        public async Task<ActionResult<ProductoResponseDto>> CrearProducto(
+            CrearProductoDto dto)
+        {
+            // Verificamos que la categoría exista.
+            bool categoriaExiste = await _context.Categorias
+                .AnyAsync(c => c.IdCategoria == dto.IdCategoria);
+
+            if (!categoriaExiste)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "La categoría indicada no existe."
+                });
+            }
+
+            // Creamos el producto.
+            var producto = new Models.Producto
+            {
+                Nombre = dto.Nombre,
+                Marca = dto.Marca,
+                Variante = dto.Variante,
+                PrecioCompra = dto.PrecioCompra,
+                PrecioVenta = dto.PrecioVenta,
+
+                // El stock siempre empieza en cero.
+                Stock = 0,
+
+                // La imagen se cargará después mediante otro endpoint.
+                Imagen = null,
+
+                IdCategoria = dto.IdCategoria,
+                Activo = true
+            };
+
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+
+            // Buscamos el nombre de la categoría para devolverlo.
+            string? categoriaNombre = await _context.Categorias
+                .Where(c => c.IdCategoria == producto.IdCategoria)
+                .Select(c => c.Nombre)
+                .FirstOrDefaultAsync();
+
+            var respuesta = new ProductoResponseDto
+            {
+                IdProducto = producto.IdProducto,
+                Nombre = producto.Nombre,
+                Marca = producto.Marca,
+                Variante = producto.Variante,
+                PrecioCompra = producto.PrecioCompra,
+                PrecioVenta = producto.PrecioVenta,
+                Stock = producto.Stock,
+                Imagen = producto.Imagen,
+                IdCategoria = producto.IdCategoria,
+                CategoriaNombre = categoriaNombre,
+                Activo = producto.Activo
+            };
+
+            return CreatedAtAction(
+                nameof(GetProducto),
+                new { id = producto.IdProducto },
+                respuesta
+            );
         }
     }
 }
