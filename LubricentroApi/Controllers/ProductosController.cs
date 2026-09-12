@@ -19,15 +19,31 @@ namespace LubricentroApi.Controllers
         }
 
         // ----------------------------------------------------
-        // LISTAR PRODUCTOS
-        // GET: api/productos
+        // LISTAR PRODUCTOS CON PAGINACIÓN
+        // GET: api/productos?pagina=1&tamanoPagina=5
         // Admin y Empleado
         // ----------------------------------------------------
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductoResponseDto>>> GetProductos()
+        public async Task<ActionResult<RespuestaPaginadaDto<ProductoResponseDto>>> GetProductos(
+            [FromQuery] ParametrosPaginacionDto parametros)
         {
-            var productos = await _context.Productos
+            // Consulta base.
+            var consulta = _context.Productos
                 .AsNoTracking()
+                .OrderBy(p => p.IdProducto);
+
+            // Cantidad total de productos.
+            int totalRegistros = await consulta.CountAsync();
+
+            // Cantidad total de páginas.
+            int totalPaginas = (int)Math.Ceiling(
+                totalRegistros / (double)parametros.TamanoPagina
+            );
+
+            // Aplicamos la paginación.
+            var productos = await consulta
+                .Skip((parametros.Pagina - 1) * parametros.TamanoPagina)
+                .Take(parametros.TamanoPagina)
                 .Select(p => new ProductoResponseDto
                 {
                     IdProducto = p.IdProducto,
@@ -46,7 +62,19 @@ namespace LubricentroApi.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(productos);
+            // Armamos la respuesta paginada.
+            var respuesta = new RespuestaPaginadaDto<ProductoResponseDto>
+            {
+                PaginaActual = parametros.Pagina,
+                TamanoPagina = parametros.TamanoPagina,
+                TotalRegistros = totalRegistros,
+                TotalPaginas = totalPaginas,
+                TienePaginaAnterior = parametros.Pagina > 1,
+                TienePaginaSiguiente = parametros.Pagina < totalPaginas,
+                Datos = productos
+            };
+
+            return Ok(respuesta);
         }
 
         // ----------------------------------------------------
