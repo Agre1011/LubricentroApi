@@ -21,6 +21,118 @@ namespace LubricentroApi.Controllers
         }
 
         // ----------------------------------------------------
+        // LISTAR INGRESOS CON PAGINACIÓN
+        // GET: api/ingresos?pagina=1&tamanoPagina=10
+        // Solo Admin
+        // ----------------------------------------------------
+        [HttpGet]
+        public async Task<ActionResult<RespuestaPaginadaDto<IngresoListadoDto>>> GetIngresos(
+            [FromQuery] ParametrosPaginacionDto parametros)
+        {
+            var consulta =
+                from ingreso in _context.Ingresos.AsNoTracking()
+                join proveedor in _context.Proveedores.AsNoTracking()
+                    on ingreso.IdProveedor equals proveedor.IdProveedor
+                join usuario in _context.Usuarios.AsNoTracking()
+                    on ingreso.IdUsuario equals usuario.IdUsuario
+                orderby ingreso.FechaHora descending
+                select new IngresoListadoDto
+                {
+                    IdIngreso = ingreso.IdIngreso,
+                    FechaHora = ingreso.FechaHora,
+                    IdProveedor = proveedor.IdProveedor,
+                    Proveedor = proveedor.Nombre,
+                    IdUsuario = usuario.IdUsuario,
+                    Usuario = usuario.Username,
+                    Observacion = ingreso.Observacion
+                };
+
+            int totalRegistros = await consulta.CountAsync();
+
+            int totalPaginas = (int)Math.Ceiling(
+                totalRegistros / (double)parametros.TamanoPagina
+            );
+
+            var ingresos = await consulta
+                .Skip((parametros.Pagina - 1) * parametros.TamanoPagina)
+                .Take(parametros.TamanoPagina)
+                .ToListAsync();
+
+            var respuesta = new RespuestaPaginadaDto<IngresoListadoDto>
+            {
+                PaginaActual = parametros.Pagina,
+                TamanoPagina = parametros.TamanoPagina,
+                TotalRegistros = totalRegistros,
+                TotalPaginas = totalPaginas,
+                TienePaginaAnterior = parametros.Pagina > 1,
+                TienePaginaSiguiente = parametros.Pagina < totalPaginas,
+                Datos = ingresos
+            };
+
+            return Ok(respuesta);
+        }
+
+
+        // ----------------------------------------------------
+        // OBTENER INGRESO COMPLETO POR ID
+        // GET: api/ingresos/{id}
+        // Solo Admin
+        // ----------------------------------------------------
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IngresoResponseDto>> GetIngreso(int id)
+        {
+            var ingreso = await _context.Ingresos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.IdIngreso == id);
+
+            if (ingreso == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "Ingreso no encontrado."
+                });
+            }
+
+            var proveedor = await _context.Proveedores
+                .AsNoTracking()
+                .FirstAsync(p => p.IdProveedor == ingreso.IdProveedor);
+
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .FirstAsync(u => u.IdUsuario == ingreso.IdUsuario);
+
+            var detalles = await (
+                from detalle in _context.DetalleIngresos.AsNoTracking()
+                join producto in _context.Productos.AsNoTracking()
+                    on detalle.IdProducto equals producto.IdProducto
+                where detalle.IdIngreso == id
+                select new DetalleIngresoResponseDto
+                {
+                    IdProducto = producto.IdProducto,
+                    Producto = producto.Nombre,
+                    Marca = producto.Marca,
+                    Variante = producto.Variante,
+                    Cantidad = detalle.Cantidad,
+                    PrecioCompraUnitario = detalle.PrecioCompraUnitario
+                }
+            ).ToListAsync();
+
+            var respuesta = new IngresoResponseDto
+            {
+                IdIngreso = ingreso.IdIngreso,
+                FechaHora = ingreso.FechaHora,
+                IdProveedor = proveedor.IdProveedor,
+                Proveedor = proveedor.Nombre,
+                IdUsuario = usuario.IdUsuario,
+                Usuario = usuario.Username,
+                Observacion = ingreso.Observacion,
+                Detalles = detalles
+            };
+
+            return Ok(respuesta);
+        }
+
+        // ----------------------------------------------------
         // REGISTRAR COMPRA / INGRESO
         // POST: api/ingresos
         // Solo Admin

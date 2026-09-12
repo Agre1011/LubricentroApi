@@ -69,4 +69,21 @@ namespace LubricentroApi.DTOs
 
         public List<DetalleIngresoResponseDto> Detalles { get; set; } = new();
     }
+
+    public class IngresoListadoDto
+    {
+        public int IdIngreso { get; set; }
+
+        public DateTime FechaHora { get; set; }
+
+        public int IdProveedor { get; set; }
+
+        public string Proveedor { get; set; } = string.Empty;
+
+        public int IdUsuario { get; set; }
+
+        public string Usuario { get; set; } = string.Empty;
+
+        public string? Observacion { get; set; }
+    }
 }
