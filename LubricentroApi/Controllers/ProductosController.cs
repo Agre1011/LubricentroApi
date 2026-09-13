@@ -3,6 +3,7 @@ using LubricentroApi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace LubricentroApi.Controllers
 {
@@ -277,6 +278,144 @@ namespace LubricentroApi.Controllers
             {
                 mensaje = "Producto dado de baja correctamente.",
                 idProducto = producto.IdProducto
+            });
+        }
+
+        // ----------------------------------------------------
+        // SUBIR O REEMPLAZAR IMAGEN DE PRODUCTO
+        // POST: api/productos/{id}/imagen
+        // Admin y Empleado
+        // ----------------------------------------------------
+        [HttpPost("{id}/imagen")]
+        public async Task<IActionResult> SubirImagen(
+            int id,
+            IFormFile archivo)
+        {
+            var producto = await _context.Productos
+                .FirstOrDefaultAsync(p => p.IdProducto == id);
+
+            if (producto == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "Producto no encontrado."
+                });
+            }
+
+            if (!producto.Activo)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "No se puede cargar una imagen a un producto dado de baja."
+                });
+            }
+
+            // Verificar que realmente se haya enviado un archivo.
+            if (archivo == null || archivo.Length == 0)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "Debe seleccionar una imagen."
+                });
+            }
+
+            // Tamaño máximo: 5 MB.
+            const long tamanoMaximo = 5 * 1024 * 1024;
+
+            if (archivo.Length > tamanoMaximo)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "La imagen no puede superar los 5 MB."
+                });
+            }
+
+            // Formatos permitidos.
+            var extensionesPermitidas = new[]
+            {
+        ".jpg",
+        ".jpeg",
+        ".png"
+    };
+
+            var extension = Path.GetExtension(archivo.FileName)
+                .ToLowerInvariant();
+
+            if (!extensionesPermitidas.Contains(extension))
+            {
+                return BadRequest(new
+                {
+                    mensaje = "Formato no permitido. Solo se aceptan JPG, JPEG o PNG."
+                });
+            }
+
+            // También comprobamos el tipo MIME.
+            var tiposPermitidos = new[]
+            {
+        "image/jpeg",
+        "image/png"
+    };
+
+            if (!tiposPermitidos.Contains(archivo.ContentType.ToLowerInvariant()))
+            {
+                return BadRequest(new
+                {
+                    mensaje = "El archivo seleccionado no es una imagen válida."
+                });
+            }
+
+            // Ruta física donde se guardarán las imágenes.
+            var carpetaUploads = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads"
+            );
+
+            // Por seguridad, la creamos si no existiera.
+            Directory.CreateDirectory(carpetaUploads);
+
+            // Si el producto ya tenía una imagen, borramos la anterior.
+            if (!string.IsNullOrWhiteSpace(producto.Imagen))
+            {
+                var nombreImagenAnterior = Path.GetFileName(producto.Imagen);
+
+                var rutaAnterior = Path.Combine(
+                    carpetaUploads,
+                    nombreImagenAnterior
+                );
+
+                if (System.IO.File.Exists(rutaAnterior))
+                {
+                    System.IO.File.Delete(rutaAnterior);
+                }
+            }
+
+            // Creamos un nombre único para evitar archivos repetidos.
+            var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+
+            var rutaArchivo = Path.Combine(
+                carpetaUploads,
+                nombreArchivo
+            );
+
+            // Guardar físicamente la imagen.
+            await using (var stream = new FileStream(
+                rutaArchivo,
+                FileMode.Create))
+            {
+                await archivo.CopyToAsync(stream);
+            }
+
+            // Guardamos únicamente la ruta relativa en SQL Server.
+            producto.Imagen = $"/uploads/{nombreArchivo}";
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Imagen cargada correctamente.",
+                idProducto = producto.IdProducto,
+                imagen = producto.Imagen
             });
         }
     }
