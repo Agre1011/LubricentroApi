@@ -103,6 +103,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 // CORS antes de autenticación y autorización.
 app.UseCors("CorsPermisivo");
